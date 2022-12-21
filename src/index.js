@@ -5,11 +5,16 @@ const ramenRestaurant = document.querySelector(".restaurant");
 const ramenRating = document.querySelector("#rating-display");
 const ramenComment = document.querySelector("#comment-display");
 const newRamen = document.querySelector("#new-ramen");
+const deleteButton = document.querySelector("#delete-ramen")
+let globalRamen = -1
 document.addEventListener("DOMContentLoaded", ()=>{
     getData();
 })
 newRamen.addEventListener("submit", (e)=>{
     addNewRamen(e)
+})
+deleteButton.addEventListener('click', ()=>{
+    deleteRamen()
 })
 function getData() {
     fetch("http://localhost:3000/ramens")
@@ -19,13 +24,16 @@ function getData() {
             displayImage(ramen)
         })
         showDetails(data[0])
+        globalRamen = data[0].id
     })
 }
 function displayImage(ramen) {
     let img = document.createElement("img")
     img.src = ramen.image
+    img.id = `id${ramen.id}`
     img.addEventListener('click', ()=>{
         showDetails(ramen)
+        globalRamen = ramen.id
     })
     ramenMenu.appendChild(img)
 }
@@ -48,4 +56,22 @@ function addNewRamen(e){
         image: e.target["new-image"].value
     }
     displayImage(body)
+}
+
+function deleteRamen(){
+    document.querySelector(`#ramen-menu #id${globalRamen}`).remove()
+
+    showDetails({
+        name: '',
+        restaurant: '',
+        rating: 0,
+        comment: '',
+        image: ''
+    })
+    fetch(`http://localhost:3000/ramens/` + globalRamen, {
+        method: 'DELETE',
+    })
+    .then(response => response.json())
+    .then(response => console.log(respone))
+    
 }
